@@ -11,11 +11,6 @@ from megatron import get_args
 from megatron.core import mpu, tensor_parallel
 
 
-_FLOAT_TYPES = [get_accelerator().FloatTensor(0).dtype]
-_HALF_TYPES = [get_accelerator().HalfTensor(0).dtype]
-_BF16_TYPES = [get_accelerator().BFloat16Tensor(0).dtype]
-
-
 
 def param_is_not_shared(param):
     return not hasattr(param, 'shared') or not param.shared
@@ -132,6 +127,7 @@ def conversion_helper(val, conversion):
 
 def fp32_to_float16(val, float16_convertor):
     """Convert fp32 `val` to fp16/bf16"""
+    _FLOAT_TYPES = [get_accelerator().FloatTensor(0).dtype]
     def half_conversion(val):
         val_typecheck = val
         if isinstance(val_typecheck, (Parameter, Variable)):
@@ -144,6 +140,8 @@ def fp32_to_float16(val, float16_convertor):
 
 def float16_to_fp32(val):
     """Convert fp16/bf16 `val` to fp32"""
+    _HALF_TYPES = [get_accelerator().HalfTensor(0).dtype]
+    _BF16_TYPES = [get_accelerator().BFloat16Tensor(0).dtype]
     def float_conversion(val):
         val_typecheck = val
         if isinstance(val_typecheck, (Parameter, Variable)):
