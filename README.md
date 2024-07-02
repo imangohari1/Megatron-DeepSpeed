@@ -79,7 +79,6 @@ $PYTHON oscar-to-jsonl.py
 mkdir -p zh
 mv oscar*.jsonl zh
 cd zh
-cat oscar-[0-4].jsonl > oscar-zh.jsonl
   ```
 # Step 3 :
 Use one of the three methods below to tokenize the dataset. You can use any number of workers based on the CPU cores.
@@ -90,7 +89,12 @@ wget https://s3.amazonaws.com/models.huggingface.co/bert/gpt2-vocab.json
 wget https://s3.amazonaws.com/models.huggingface.co/bert/gpt2-merges.txt
 
 # use the tokenized files generated from this command to train
-$PYTHON $MEGATRON_DEEPSPEED_ROOT/tools/preprocess_data.py --input oscar-zh.jsonl --output-prefix tokenized --tokenizer-type GPT2BPETokenizer --vocab-file gpt2-vocab.json --merge-file gpt2-merges.txt --append-eod --workers 64
+mkdir tokenized tokenized_merged
+for i in $(seq 0 4); do
+   $PYTHON $MEGATRON_DEEPSPEED_ROOT/tools/preprocess_data.py --input oscar-${i}.jsonl --output-prefix tokenized/tokenized${i} --tokenizer-type GPT2BPETokenizer \
+--vocab-file gpt2-vocab.json --merge-file gpt2-merges.txt --append-eod --workers 64
+done
+$PYTHON $MEGATRON_DEEPSPEED_ROOT/tools/merge_datasets.py --input tokenized --output-prefix tokenized_merged/tokenized_text_document
 ```
 
   * Tokenize the dataset using GPTSentencePieceTokenizer:
